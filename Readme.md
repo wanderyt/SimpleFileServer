@@ -9,6 +9,6 @@ Overview
 
 Set root directory in web-server.js.
 
-    _root_
+    root
 
 The default value is disk C.
