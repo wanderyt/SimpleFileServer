@@ -7,7 +7,7 @@ var util = require('util'),
     path=require("path"),
     mime=require("./mime").mime;
 
-var root      ="C:\\"; //设置服务器根目录
+var ROOT      ="C:\\"; //设置服务器根目录
 var FILE_PORT = 8003;
 var HOST      = "127.0.0.1";
 
