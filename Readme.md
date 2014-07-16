@@ -3,7 +3,7 @@ Simple File Server
 
 Overview
 ----------------------------------------
-* Author: David Ren <david.ren@sap.com>
+* Author: David Ren
 * Created: 2014-07-16
 
 
