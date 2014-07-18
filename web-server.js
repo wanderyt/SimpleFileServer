@@ -50,8 +50,8 @@ function main(argv) {
     }).listen(Number(argv[1]) || FILE_PORT, Number(argv[2]) || HOST);
 }
 
-if(!path.existsSync(root)){
-    util.error(root+"文件夹不存在，请重新制定根文件夹！");
+if(!path.existsSync(ROOT)){
+    util.error(ROOT+"文件夹不存在，请重新制定根文件夹！");
     process.exit();
 }
 
@@ -67,7 +67,6 @@ function listDirectory(parentDirectory,req,res){
         res.write(body,'utf8');
         res.end();
     });
-
 }
 
 //显示文件内容
@@ -91,26 +90,56 @@ function formatBody(parent,files){
     res.push("<!doctype>");
     res.push("<html>");
     res.push("<head>");
-    res.push("<meta http-equiv='Content-Type' content='text/html;charset=utf-8'></meta>")
+    res.push("<meta http-equiv='Content-Type' content='text/html;charset=utf-8'></meta>");
     res.push("<title>Node.js文件服务器</title>");
+    res.push("<style>li:nth-of-type(even){background-color: #EEEEEE;}</style>");
     res.push("</head>");
     res.push("<body width='100%'>");
-    res.push("<ul>")
+    res.push("<div style='position:relative;bottom:5px;height:30px;background:gray'>");
+    res.push("<div style='margin:0 auto;height:100%'>");
+    res.push("<span style='font-size: 22px;line-height: 30px;text-align: left;font-weight: bold;float:left;color: #ffffff;'>Directory Listing For "
+        + parent
+        + "</span>");
+    res.push("<span style='font-size: 22px;line-height: 30px;text-align: right;font-weight: bold;float:right;'>"
+        + "<a style='color:#ffffff' href='http://localhost:8000/app/index.html'>Return to NSESH page</a>"
+        + "</span>");
+    res.push("</div>");
+    res.push("<hr>");
+    res.push("<ul style='list-style: none;padding-left:0px'>");
+    if(parent != ROOT) {
+        var parentURL = parent.split(ROOT)[1];
+        var basename = path.basename(parent);
+        var parentDir = parentURL.split(basename)[0];
+        console.log("parentURL : " + parentURL);
+        console.log("basename : " + basename);
+        console.log("parentDir : " + parentDir);
+        res.push("<li style='font-family: monospace;font-size: 16px;line-height: 16px;margin: 6px 0;text-indent: 20px;'>" +
+            "<a href='"+"/"+parentDir+"'>../</a></li>");
+    }
     files.forEach(function(val,index){
-        var stat=fs.statSync(path.join(parent,val));
-        console.log(path.basename(val));
-        var parentSplits = parent.split(root);
-        var parentPath = parentSplits[1];
-        if(stat.isDirectory(val)) {
-            val = path.basename(val) + "/";
-        } else {
-            val=path.basename(val);
+        console.log("val : " + val);
+        console.log("parent : " + parent);
+        try {
+            var stat=fs.statSync(path.join(parent,val));
+            var parentSplits = parent.split(ROOT);
+            var parentPath = parentSplits[1];
+            if(stat.isDirectory(val)) {
+                val = path.basename(val) + "/";
+            } else {
+                val=path.basename(val);
+            }
+            if(parentPath == "") {
+                res.push("<li style='font-family: monospace;font-size: 16px;line-height: 16px;margin: 6px 0;text-indent: 20px;'><a href='"+"/"+val+"'>"+val+"</a></li>");
+            } else {
+                res.push("<li style='font-family: monospace;font-size: 16px;line-height: 16px;margin: 6px 0;text-indent: 20px;'><a href='"+"/"+parentPath+"/"+val+"'>"+val+"</a></li>");
+            }
+        } catch(e) {
+            //res.push("<li>" + e.message + "</li>");
         }
-        console.log("/"+parentPath+"/"+val);
-        res.push("<li><a href='"+"/"+parentPath+"/"+val+"'>"+val+"</a></li>");
     });
     res.push("</ul>");
-    res.push("<div style='position:relative;width:98%;bottom:5px;height:25px;background:gray'>");
+    res.push("<hr>");
+    res.push("<div style='position:relative;bottom:5px;height:25px;background:gray'>");
     res.push("<div style='margin:0 auto;height:100%;line-height:25px;text-align:center'>Powered By Node.js</div>");
     res.push("</div>")
     res.push("</body>");
@@ -128,6 +157,7 @@ function write404(req,res){
     res.write(body);
     res.end();
 }
+
 
 // ---------------------------- End --------------------------------
 
