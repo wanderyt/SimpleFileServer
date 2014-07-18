@@ -83,7 +83,7 @@ function showFile(file,req,res){
     })
 }
 
-//在Web页面上显示文件列表，格式为 Display the file list in the web page, with the format of ul->li
+// Display the file list in the web page, with the format of ul->li
 function formatBody(parent,files){
     var res=[],
         length=files.length;
