@@ -7,17 +7,17 @@ var util = require('util'),
     path=require("path"),
     mime=require("./mime").mime;
 
-var ROOT      ="C:\\"; //设置服务器根目录
+var ROOT      ="C:\\"; //Set Root Directory
 var FILE_PORT = 8003;
 var HOST      = "127.0.0.1";
 
 function main(argv) {
-    //创建服务器
+    //Create server
     http.createServer(function(req,res){
-        //将url地址的中的%20替换为空格，不然Node.js找不到文件
+        //Change space with '%20' in url, otherwise the file could not be found by node.js
         var pathname=url.parse(req.url).pathname.replace(/%20/g,' '),
             re=/(%[0-9A-Fa-f]{2}){3}/g;
-        //能够正确显示中文，将三字节的字符转换为utf-8编码
+        //Use utf-8 code to indicate chinese character
         pathname=pathname.replace(re,function(word){
             var buffer=new Buffer(3),
                 array=word.split('%');
@@ -34,7 +34,7 @@ function main(argv) {
             filename=path.join(root,pathname);
             path.exists(filename,function(exists){
                 if(!exists){
-                    util.error('找不到文件'+filename);
+                    util.error('Cound not find file : '+filename);
                     write404(req,res);
                 }else{
                     fs.stat(filename,function(err,stat){
@@ -51,11 +51,11 @@ function main(argv) {
 }
 
 if(!path.existsSync(ROOT)){
-    util.error(ROOT+"文件夹不存在，请重新制定根文件夹！");
+    util.error(ROOT+"Directory not exist, please redefine the root directory!");
     process.exit();
 }
 
-//显示文件夹下面的文件
+// List the files in parent directory
 function listDirectory(parentDirectory,req,res){
     fs.readdir(parentDirectory,function(error,files){
         var body=formatBody(parentDirectory,files);
@@ -69,7 +69,7 @@ function listDirectory(parentDirectory,req,res){
     });
 }
 
-//显示文件内容
+// Display the content in file
 function showFile(file,req,res){
     fs.readFile(filename,'binary',function(err,file){
         var contentType=mime.lookupExtension(path.extname(filename));
@@ -83,7 +83,7 @@ function showFile(file,req,res){
     })
 }
 
-//在Web页面上显示文件列表，格式为<ul><li></li><li></li></ul>
+//在Web页面上显示文件列表，格式为 Display the file list in the web page, with the format of ul->li
 function formatBody(parent,files){
     var res=[],
         length=files.length;
@@ -91,7 +91,7 @@ function formatBody(parent,files){
     res.push("<html>");
     res.push("<head>");
     res.push("<meta http-equiv='Content-Type' content='text/html;charset=utf-8'></meta>");
-    res.push("<title>Node.js文件服务器</title>");
+    res.push("<title>Node.js File Server</title>");
     res.push("<style>li:nth-of-type(even){background-color: #EEEEEE;}</style>");
     res.push("</head>");
     res.push("<body width='100%'>");
@@ -134,7 +134,7 @@ function formatBody(parent,files){
                 res.push("<li style='font-family: monospace;font-size: 16px;line-height: 16px;margin: 6px 0;text-indent: 20px;'><a href='"+"/"+parentPath+"/"+val+"'>"+val+"</a></li>");
             }
         } catch(e) {
-            //res.push("<li>" + e.message + "</li>");
+            res.push("<li>" + e.message + "</li>");
         }
     });
     res.push("</ul>");
@@ -146,9 +146,9 @@ function formatBody(parent,files){
     return res.join("");
 }
 
-//如果文件找不到，显示404错误
+// Return 404 code if file not exist
 function write404(req,res){
-    var body="文件不存在:-(";
+    var body="File not found.";
     res.writeHead(404,{
         "Content-Type":"text/html;charset=utf-8",
         "Content-Length":Buffer.byteLength(body,'utf8'),
@@ -161,5 +161,5 @@ function write404(req,res){
 
 // ---------------------------- End --------------------------------
 
-// Must be last,
+// Must be last
 main(process.argv);
